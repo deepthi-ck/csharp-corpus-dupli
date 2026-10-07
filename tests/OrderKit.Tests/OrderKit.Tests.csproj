@@ -9,16 +9,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- test package resolved by paket -->
-    <!-- versions resolved by paket.lock; see paket.references -->
+    <!-- Mirrors paket.lock pins for this project's paket.references. The platform worker
+         runs a plain `dotnet restore` with no paket tool, so the graph Paket.Restore.targets
+         would emit is declared here; paket.dependencies / paket.lock stay the source of truth. -->
+    <!-- Test host + adapter + collector: required by coverlet, altcover and stryker-net.
+         The planted CVE packages arrive transitively from the service projects; pinning
+         Newtonsoft.Json 9.0.1 here directly is a NU1605 downgrade against Test.Sdk. -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\OrderKit.Domain\OrderKit.Domain.csproj" />
-    <ProjectReference Include="..\..\OrderKit.Contracts\OrderKit.Contracts.csproj" />
-    <ProjectReference Include="..\..\OrderKit.Pricing\OrderKit.Pricing.csproj" />
-    <ProjectReference Include="..\..\OrderKit.Risk\OrderKit.Risk.csproj" />
-    <ProjectReference Include="..\..\OrderKit.Reporting\OrderKit.Reporting.csproj" />
+    <ProjectReference Include="..\..\src\OrderKit.Domain\OrderKit.Domain.csproj" />
+    <ProjectReference Include="..\..\src\OrderKit.Contracts\OrderKit.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Services\OrderKit.Pricing\OrderKit.Pricing.csproj" />
+    <ProjectReference Include="..\..\src\Services\OrderKit.Risk\OrderKit.Risk.csproj" />
+    <ProjectReference Include="..\..\src\Services\OrderKit.Reporting\OrderKit.Reporting.csproj" />
   </ItemGroup>
 
 </Project>

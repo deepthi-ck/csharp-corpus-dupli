@@ -2,14 +2,14 @@
 tool: dotnet list package --vulnerable
 slug: nuget-audit
 kind: sdk
-status: skipped
+status: active
 target_framework: net10.0
 language_version: "14.0"
 runner: tools/nuget-audit/run.sh
 expects:
-  exit_code: 3
+  exit_code: 0
   reason: >-
-    Requires PackageReference and an SDK-style project. Structurally impossible on the packages.config cells, and requires a restore this host cannot perform.
+    Paket pins are mirrored as PackageReference, so a plain `dotnet restore` (the worker has no paket tool) resolves them. Measured: `dotnet list package --vulnerable --include-transitive --format json` over 6 projects reports Newtonsoft.Json 9.0.1 (High), System.Net.Http 4.3.0 (High), System.Text.RegularExpressions 4.3.0 (High), BouncyCastle 1.8.1 (Moderate). ai-testable-platform v1.0.5 worker (runner: dotnet-sca).
 metrics:
   primary_for: 8
   alternative_for: 0

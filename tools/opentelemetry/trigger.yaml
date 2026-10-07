@@ -9,7 +9,7 @@ runner: tools/opentelemetry/run.sh
 expects:
   exit_code: 4
   reason: >-
-    STATUS CHANGED AT THIS FAMILY, for the same reason as Coverlet: netstandard2.0 clears at net461, so the target framework no longer excludes it and only NuGet does. Note separately that tracing is not path coverage. The TypeScript corpus shipped an OTel bootstrap that registered a no-op processor, exported nothing and exited 0 -- a structurally zero result.
+    ai-testable-platform v1.0.5 has no C# OpenTelemetry runner; opentelemetry_spans_runner is TypeScript-only. Nothing in the corpus can make it fire until the platform registers a C# runner.
 metrics:
   primary_for: 1
   alternative_for: 0

@@ -5,6 +5,20 @@
     <Deterministic>true</Deterministic>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Every project carries Properties/AssemblyInfo.cs; the SDK must not emit a second copy (CS0579). -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+
+  <!--
+    ai-testable-platform analyzer bundle (StyleCop, SonarAnalyzer.CSharp, SecurityCodeScan,
+    NetAnalyzers). The roslyn-analyzers / sonar-cs / security-code-scan runners only inject
+    their own Directory.Build.props shim when this file is ABSENT, and they inject it after
+    restore. Importing here puts the analyzers in the restore graph so all three fire.
+    Absent on a developer machine, so local builds are unaffected.
+  -->
+  <PropertyGroup>
+    <WbAnalyzersProps Condition="'$(WbAnalyzersProps)' == ''">/opt/tools/whitebox/csharp/Directory.Analyzers.props</WbAnalyzersProps>
+  </PropertyGroup>
+  <Import Project="$(WbAnalyzersProps)" Condition="Exists('$(WbAnalyzersProps)')" />
 
 </Project>

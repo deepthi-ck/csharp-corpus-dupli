@@ -2,14 +2,14 @@
 tool: AltCover
 slug: altcover
 kind: sdk
-status: not-installed
+status: active
 target_framework: net10.0
 language_version: "14.0"
 runner: tools/altcover/run.sh
 expects:
-  exit_code: 4
+  exit_code: 0
   reason: >-
-    Declares .NET Framework 2.0+ via a net20 recorder, so it is the one coverage tool in the roster that could reach this family. Blocked only by NuGet.
+    Measured with altcover.global 8.8.173 exactly as the runner drives it (--save --inplace on tests/OrderKit.Tests/bin, then `altcover Runner -- dotnet test`): 21/21 passed, NCover report written. ai-testable-platform v1.0.5 worker (runner: altcover).
 metrics:
   primary_for: 9
   alternative_for: 0

@@ -4,8 +4,10 @@ set -uo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 . "$REPO_ROOT/tools/_skip.sh"
 
-# --- why this tool has the status it has on this family -------------------
-# STATUS CHANGED AT THIS FAMILY. net45 and net46 sat below netstandard2.0, whose .NET Framework floor is net461, so Coverlet was excluded by the TARGET FRAMEWORK and exited 3. This family is above that floor: nothing about net462 excludes Coverlet. It is now held out only by NuGet being refused at this host's egress proxy, which is a setup gap -- exit 4. The 18 metrics it is primary for (statement 5, branch 7, delta 6) are dark for a completely different reason than they were one family ago, and collapsing 3 and 4 would hide that.
-missing "STATUS CHANGED AT THIS FAMILY"
-
-exit 0
+# Test project now carries Microsoft.NET.Test.Sdk 17.12.0, NUnit3TestAdapter 4.6.0, coverlet.collector 6.0.2. Measured: `dotnet test --collect:"XPlat Code Coverage"` with the platform runsettings, 21/21 passed, Cobertura line 47.5%, branch 38.9%. Feeds cs_coverage_delta. ai-testable-platform v1.0.5 worker (runner: coverlet).
+require_cmd dotnet
+OUT="$REPO_ROOT/reports/coverlet"; mkdir -p "$OUT"
+cd "$REPO_ROOT"
+dotnet restore OrderKit.sln --nologo -v quiet || exit $RC_FAIL
+dotnet test OrderKit.sln --no-restore --nologo "--collect:XPlat Code Coverage" --results-directory "$OUT" -v minimal || exit $RC_FAIL
+exit $RC_OK
