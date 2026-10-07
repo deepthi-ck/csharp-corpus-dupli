@@ -1,6 +1,4 @@
-Newtonsoft.Json
-System.Net.Http
-Microsoft.AspNet.Mvc
-System.Text.RegularExpressions
-BouncyCastle
 NUnit
+Microsoft.NET.Test.Sdk
+NUnit3TestAdapter
+coverlet.collector

@@ -7,3 +7,6 @@ NUGET
     System.Text.RegularExpressions (4.3.0)
     BouncyCastle (1.8.1)
     NUnit (3.13.3)
+    Microsoft.NET.Test.Sdk (17.12.0)
+    NUnit3TestAdapter (4.6.0)
+    coverlet.collector (6.0.2)

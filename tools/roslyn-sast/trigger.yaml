@@ -2,14 +2,14 @@
 tool: Roslyn SAST analyzers
 slug: roslyn-sast
 kind: analyzer
-status: not-installed
+status: active
 target_framework: net10.0
 language_version: "14.0"
 runner: tools/roslyn-sast/run.sh
 expects:
-  exit_code: 4
+  exit_code: 0
   reason: >-
-    The sheet says 'roslyn sast', also not a package. Resolved here to SecurityCodeScan + Microsoft.CodeAnalysis.NetAnalyzers. NuGet unreachable.
+    SecurityCodeScan.VS2019 5.6.7 loads through the same imported bundle and the security-code-scan SARIF is produced. It reports 0 SCS-specific rules here: the code has no ASP.NET taint sources, so the taint findings come from Semgrep. ai-testable-platform v1.0.5 worker (runner: security-code-scan).
 metrics:
   primary_for: 12
   alternative_for: 0

@@ -31,7 +31,7 @@
     "note": "The domain layer is byte-identical across all 24 branches of this family, so any tool-output difference is attributable to the cell variables and nothing else."
   },
   "expectations": {
-    "toolsActive": 5,
+    "toolsActive": 11,
     "toolsTotal": 19,
     "metricsWithLivePrimary": 25,
     "metricsDark": 78,
@@ -126,17 +126,17 @@
       "tool": "Roslyn analyzers (cognitive complexity)",
       "slug": "roslyn-metrics",
       "kind": "analyzer",
-      "status": "not-installed",
-      "expectedExitCode": 4,
-      "reason": "The sheet says 'Roslyn', which is a compiler platform, not a package. Resolved here to SonarAnalyzer.CSharp (rule S3776 is cognitive complexity). Analyzer packages come from NuGet, which is refused at this host's egress proxy."
+      "status": "active",
+      "expectedExitCode": 0,
+      "reason": "Directory.Build.props imports the platform analyzer bundle (/opt/tools/whitebox/csharp/Directory.Analyzers.props), so StyleCop + SonarAnalyzer.CSharp + NetAnalyzers are in the restore graph. Measured on SDK 10.0.303: build clean, SARIF 75 results (SA 68, S 3, CA 4). ai-testable-platform v1.0.5 worker (runner: roslyn-analyzers, sonar-cs)."
     },
     {
       "tool": "Roslyn SAST analyzers",
       "slug": "roslyn-sast",
       "kind": "analyzer",
-      "status": "not-installed",
-      "expectedExitCode": 4,
-      "reason": "The sheet says 'roslyn sast', also not a package. Resolved here to SecurityCodeScan + Microsoft.CodeAnalysis.NetAnalyzers. NuGet unreachable."
+      "status": "active",
+      "expectedExitCode": 0,
+      "reason": "SecurityCodeScan.VS2019 5.6.7 loads through the same imported bundle and the security-code-scan SARIF is produced. It reports 0 SCS-specific rules here: the code has no ASP.NET taint sources, so the taint findings come from Semgrep. ai-testable-platform v1.0.5 worker (runner: security-code-scan)."
     },
     {
       "tool": "Roslyn SemanticModel.AnalyzeDataFlow",
@@ -150,25 +150,25 @@
       "tool": "dotnet list package --vulnerable",
       "slug": "nuget-audit",
       "kind": "sdk",
-      "status": "skipped",
-      "expectedExitCode": 3,
-      "reason": "Requires PackageReference and an SDK-style project. Structurally impossible on the packages.config cells, and requires a restore this host cannot perform."
+      "status": "active",
+      "expectedExitCode": 0,
+      "reason": "Paket pins are mirrored as PackageReference, so a plain `dotnet restore` (the worker has no paket tool) resolves them. Measured: `dotnet list package --vulnerable --include-transitive --format json` over 2 projects reports Newtonsoft.Json 9.0.1 (High), System.Net.Http 4.3.0 (High), System.Text.RegularExpressions 4.3.0 (High), BouncyCastle 1.8.1 (Moderate). ai-testable-platform v1.0.5 worker (runner: dotnet-sca)."
     },
     {
       "tool": "Coverlet",
       "slug": "coverlet",
       "kind": "sdk",
-      "status": "not-installed",
-      "expectedExitCode": 4,
-      "reason": "STATUS CHANGED AT THIS FAMILY. net45 and net46 sat below netstandard2.0, whose .NET Framework floor is net461, so Coverlet was excluded by the TARGET FRAMEWORK and exited 3. This family is above that floor: nothing about net462 excludes Coverlet. It is now held out only by NuGet being refused at this host's egress proxy, which is a setup gap -- exit 4. The 18 metrics it is primary for (statement 5, branch 7, delta 6) are dark for a completely different reason than they were one family ago, and collapsing 3 and 4 would hide that."
+      "status": "active",
+      "expectedExitCode": 0,
+      "reason": "Test project now carries Microsoft.NET.Test.Sdk 17.12.0, NUnit3TestAdapter 4.6.0, coverlet.collector 6.0.2. Measured: `dotnet test --collect:\"XPlat Code Coverage\"` with the platform runsettings, 21/21 passed, Cobertura line 47.5%, branch 38.9%. Feeds cs_coverage_delta. ai-testable-platform v1.0.5 worker (runner: coverlet)."
     },
     {
       "tool": "AltCover",
       "slug": "altcover",
       "kind": "sdk",
-      "status": "not-installed",
-      "expectedExitCode": 4,
-      "reason": "Declares .NET Framework 2.0+ via a net20 recorder, so it is the one coverage tool in the roster that could reach this family. Blocked only by NuGet."
+      "status": "active",
+      "expectedExitCode": 0,
+      "reason": "Measured with altcover.global 8.8.173 exactly as the runner drives it (--save --inplace on tests/OrderKit.Tests/bin, then `altcover Runner -- dotnet test`): 21/21 passed, NCover report written. ai-testable-platform v1.0.5 worker (runner: altcover)."
     },
     {
       "tool": "MiniCover",
@@ -182,9 +182,9 @@
       "tool": "Stryker.NET",
       "slug": "stryker",
       "kind": "sdk",
-      "status": "skipped",
-      "expectedExitCode": 3,
-      "reason": "Requires an SDK-style project and a modern SDK to run. Also: the sheet makes it primary for 16 Data Flow metrics, which it cannot compute -- see roslyn-dataflow."
+      "status": "active",
+      "expectedExitCode": 0,
+      "reason": "Requires Stryker.NET >= 5.0.0. Measured: 5.0.0 with --test-project tests/OrderKit.Tests: 519 mutants, score 24.09%, mutation-report.json written. Stryker.NET 4.0.0 (the platform catalog pin) aborts with 'Internal error due to compile error' because its bundled Roslyn predates C# 14 (field keyword, null-conditional assignment) used by the byte-identical domain fixture. The platform pin must move to 5.0.0. ai-testable-platform v1.0.5 worker (runner: stryker-net)."
     },
     {
       "tool": "OpenTelemetry (.NET) + OTLP exporter",
@@ -192,7 +192,7 @@
       "kind": "sdk",
       "status": "not-installed",
       "expectedExitCode": 4,
-      "reason": "STATUS CHANGED AT THIS FAMILY, for the same reason as Coverlet: netstandard2.0 clears at net461, so the target framework no longer excludes it and only NuGet does. Note separately that tracing is not path coverage. The TypeScript corpus shipped an OTel bootstrap that registered a no-op processor, exported nothing and exited 0 -- a structurally zero result."
+      "reason": "ai-testable-platform v1.0.5 has no C# OpenTelemetry runner; opentelemetry_spans_runner is TypeScript-only. Nothing in the corpus can make it fire until the platform registers a C# runner."
     },
     {
       "tool": "unilyze",
@@ -250,10 +250,41 @@
   "buildStatus": {
     "sourcesParse": true,
     "parseGate": "csc -langversion:14.0 clean; -langversion:13.0 FAILS (CS8025)",
-    "restored": false,
-    "compiledAgainstTargetPack": false,
-    "testsExecuted": false,
-    "reason": "NuGet is refused at this host's egress proxy, so no PackageReference resolves and no test framework is available. Sources are verified by the Roslyn parse gate instead -- the replacement for the build gate, not a substitute for it.",
-    "declaredTestCount": 19
+    "restored": true,
+    "compiledAgainstTargetPack": true,
+    "testsExecuted": true,
+    "reason": "Measured on .NET SDK 10.0.303 (global.json 10.0.112, rollForward latestFeature): restore, Release build and 21/21 NUnit tests pass. Fixed on this branch: broken ProjectReference path (Tests -> src/OrderKit), Paket graph invisible to plain `dotnet restore`, duplicate AssemblyInfo attributes (CS0579), and a NU1605 Newtonsoft.Json downgrade against Microsoft.NET.Test.Sdk.",
+    "declaredTestCount": 21
+  },
+  "platformToolMap": {
+    "note": "Which ai-testable-platform C# runner (backend/wb-cpu-worker/app/analyzers/csharp) produces each requested metric family on this branch.",
+    "primary": {
+      "lizard": "lizard",
+      "roslyn": "roslyn-analyzers",
+      "jscpd": "jscpd-cs",
+      "roslyn sast": "security-code-scan",
+      "semgrep": "semgrep, semgrep-perf-static",
+      "nuget audit": "dotnet-sca",
+      "coverlet": "coverlet",
+      "opentelemetry": "NONE (TypeScript-only in platform)",
+      "altcover": "altcover",
+      "stryker.net": "stryker-net (needs >= 5.0.0)",
+      "pydriller": "pydriller"
+    },
+    "secondary": {
+      "csharp cyclomatic": "lizard (+ roslyn CA1502)",
+      "simple cognitive": "sonar-cs (S3776)",
+      "pmd cpd": "jscpd-cs (no PMD CPD runner for C#)",
+      "roslyn": "roslyn-analyzers",
+      "roslyn sast": "security-code-scan",
+      "cvebin": "dotnet-sca",
+      "coverlet": "coverlet",
+      "csharp call paths": "csharp-perf-dependency",
+      "stryker net": "stryker-net",
+      "coverlet delta": "cs_coverage_delta",
+      "csharp def use": "cs_all_defs_uses (platform stub: not_applicable)",
+      "csharp use coverage": "cs_all_defs_uses (platform stub: not_applicable)",
+      "git log churn": "git_churn, cs-side-effect"
+    }
   }
 }

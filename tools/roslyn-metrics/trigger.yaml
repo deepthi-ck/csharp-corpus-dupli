@@ -2,14 +2,14 @@
 tool: Roslyn analyzers (cognitive complexity)
 slug: roslyn-metrics
 kind: analyzer
-status: not-installed
+status: active
 target_framework: net10.0
 language_version: "14.0"
 runner: tools/roslyn-metrics/run.sh
 expects:
-  exit_code: 4
+  exit_code: 0
   reason: >-
-    The sheet says 'Roslyn', which is a compiler platform, not a package. Resolved here to SonarAnalyzer.CSharp (rule S3776 is cognitive complexity). Analyzer packages come from NuGet, which is refused at this host's egress proxy.
+    Directory.Build.props imports the platform analyzer bundle (/opt/tools/whitebox/csharp/Directory.Analyzers.props), so StyleCop + SonarAnalyzer.CSharp + NetAnalyzers are in the restore graph. Measured on SDK 10.0.303: build clean, SARIF 75 results (SA 68, S 3, CA 4). ai-testable-platform v1.0.5 worker (runner: roslyn-analyzers, sonar-cs).
 metrics:
   primary_for: 7
   alternative_for: 0
