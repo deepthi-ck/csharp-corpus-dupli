@@ -9,7 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Test infrastructure: required by coverlet, altcover, stryker-net runners -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <!-- Planted vulnerable packages (CVE fixtures) -->
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.0" />
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.3" />
