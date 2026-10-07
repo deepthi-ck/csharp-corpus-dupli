@@ -7,4 +7,17 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
+
+  <!--
+    Import platform Roslyn analyzer packages (StyleCop, SonarAnalyzer, SecurityCodeScan,
+    Microsoft.CodeAnalysis.NetAnalyzers) when running inside the ai-testable-platform
+    worker. The roslyn_analyzers_runner injects a Directory.Build.props shim only when
+    this file is ABSENT; since this file is present, we import the props directly so
+    that both roslyn-metrics (S3776 cognitive complexity) and roslyn-sast (security
+    scan rules) can fire. The Condition guard makes local developer builds safe when the
+    platform props file does not exist on the developer's machine.
+  -->
+  <Import Project="/opt/tools/whitebox/csharp/Directory.Analyzers.props"
+          Condition="Exists('/opt/tools/whitebox/csharp/Directory.Analyzers.props')" />
+
 </Project>
